@@ -8,7 +8,7 @@
     <string name="previous">Previous</string>
 
     <string name="note_title">Note Title</string>
-    <string name="note_text">Note Title</string>
+    <string name="note_text">Note Text</string>
     <string name="title_activity_note_list">NoteListActivity</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
