@@ -20,6 +20,7 @@ import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
     public static final int NOTE_POSTION_NOT_SET = -1;
+    public static final String NOTE_POSITION = "NOTE_POSITION";
     private NoteInfo mNote;
     private EditText etTitle, etText;
     private Spinner mSpinner;
@@ -118,7 +119,7 @@ public class NoteActivity extends AppCompatActivity {
     private void readDisplayStateValues() {
         Intent intent = getIntent();
         if(intent != null){
-            mNotePosition = intent.getIntExtra("NOTE_POSITION", NOTE_POSTION_NOT_SET);
+            mNotePosition = intent.getIntExtra(NOTE_POSITION, NOTE_POSTION_NOT_SET);
             if(mNotePosition != NOTE_POSTION_NOT_SET){
                 mIsNewNote = false;
                 mNote = DataManager.getInstance().getNotes().get(mNotePosition);
@@ -151,15 +152,42 @@ public class NoteActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_send_mail) {
-            sendMail();
-            return true;
-        }
-        else if(id == R.id.action_cancel){
-            mCancelling = true;
-            finish();
+        switch (id){
+            case R.id.action_send_mail:
+                sendMail();
+                break;
+
+            case R.id.action_cancel:
+                mCancelling = true;
+                finish();
+                break;
+
+            case R.id.action_next:
+                moveNext();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_next);
+        int lastNodeIndex = DataManager.getInstance().getNotes().size() - 1;
+
+        item.setEnabled(mNotePosition < lastNodeIndex);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void moveNext() {
+        saveNote();
+
+
+        mNotePosition++;
+        mNote = DataManager.getInstance().getNotes().get(mNotePosition);
+        saveOriginalNoteValue();
+
+        displayNote();
+        invalidateOptionsMenu();
     }
 
     private void sendMail() {
