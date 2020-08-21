@@ -29,5 +29,6 @@
     <string name="note_keeper">NoteKeeper</string>
     <string name="open">open</string>
     <string name="close">close</string>
+    <string name="menu_share">share</string>
 
 </resources>
