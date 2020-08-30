@@ -1,10 +1,12 @@
 package com.ambrella.notekeeper;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import com.ambrella.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,14 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import java.util.List;
 
 public class NoteListActivity extends AppCompatActivity {
     private NoteRecyclerAdapter mNoteRecyclerAdapter;
+    private NoteKeeperOpenHelper mHelper;
+    private SQLiteDatabase mDb;
 
     //private ArrayAdapter<NoteInfo> mAdapterNotes;
 
@@ -54,8 +53,23 @@ public class NoteListActivity extends AppCompatActivity {
         final RecyclerView.LayoutManager notesLayoutManager = new LinearLayoutManager(this);
         recyclerNotes.setLayoutManager(notesLayoutManager);
 
-        List<NoteInfo> notes = DataManager.getInstance().getNotes();
-        mNoteRecyclerAdapter = new NoteRecyclerAdapter(this, notes);
+        mHelper = new NoteKeeperOpenHelper(this);
+        mDb = mHelper.getReadableDatabase();
+        final String[] noteColumns = {
+                NoteInfoEntry.COLUMN_COURSE_ID,
+                NoteInfoEntry.COLUMN_NOTE_TITLE,
+                NoteInfoEntry.COLUMN_NOTE_TEXT };
+        Cursor notesCursor = mDb.query(NoteInfoEntry.TABLE_NAME,
+                noteColumns,null, null, null,null, null);
+
+        mNoteRecyclerAdapter = new NoteRecyclerAdapter(this, notesCursor);
         recyclerNotes.setAdapter(mNoteRecyclerAdapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mHelper.close();
+        mDb.close();
+        super.onDestroy();
     }
 }
