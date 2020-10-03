@@ -28,9 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ambrella.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.ambrella.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import com.ambrella.notekeeper.NoteKeeperProviderContract.Notes;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+
+import static com.ambrella.notekeeper.NoteKeeperProviderContract.*;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
     public static final int LOADER_NOTES = 0;
@@ -92,13 +95,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final String[] noteColumns = {
                 NoteInfoEntry.COLUMN_NOTE_TITLE,
                 CourseInfoEntry.COLUMN_COURSE_TITLE,
-                NoteInfoEntry.getQName(NoteInfoEntry._ID),};
-        String notesOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE+ "," + NoteInfoEntry.COLUMN_NOTE_TITLE;
+                NoteInfoEntry.getQName(NoteInfoEntry._ID)
+            };
+
+        String notesOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE + ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
+
         String tableWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " + CourseInfoEntry.TABLE_NAME +
                 " ON " + CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID) +
                 " = " + NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID);
+
         Cursor notesCursor = db.query(tableWithJoin,
                 noteColumns,null, null, null,null, notesOrderBy);
+
         mNoteRecyclerAdapter = new NoteRecyclerAdapter(this, notesCursor);
 
     }
@@ -221,27 +229,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         CursorLoader loader = null;
         if(id == LOADER_NOTES){
-            loader = new CursorLoader(this){
-                    @Override
-                    public Cursor loadInBackground() {
-                        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+            final String[] noteColumns = new String[]{
+                    Notes._ID,
+                    Notes.COLUMN_NOTE_TITLE,
+                    Courses.COLUMN_COURSE_TITLE
+                };
 
-                        final String[] noteColumns = {
-                                NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID),
-                                NoteInfoEntry.COLUMN_NOTE_TITLE,
-                                NoteInfoEntry.getQName(NoteInfoEntry._ID),
-                                CourseInfoEntry.COLUMN_COURSE_TITLE,
-                                NoteInfoEntry.COLUMN_NOTE_TEXT };
-                        String tableWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " + CourseInfoEntry.TABLE_NAME +
-                                " ON " + CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID) +
-                                " = " + NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID);
-                        String notesOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE + "," + NoteInfoEntry.COLUMN_NOTE_TITLE;
+            final String notesOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE + "," + NoteInfoEntry.COLUMN_NOTE_TITLE;
 
-                        return db.query(tableWithJoin,
-                                noteColumns,
-                                null, null, null, null, notesOrderBy);
-                    }
-            };
+            loader = new CursorLoader(this, Notes.CONTENT_EXPANDED_URI, noteColumns, null, null, notesOrderBy);
         }
 
         return loader;

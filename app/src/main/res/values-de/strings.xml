@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NoteKeeper</string>
+    <string name="first_fragment_label">Erde Fragment</string>
+    <string name="navigation_drawer_open">Offnen Navigation Drawer</string>
+    <string name="note_title" translatable="false">Lesson Title</string>
+    <string name="note_text" translatable="false">Lesson Text</string>
+</resources>
