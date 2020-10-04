@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.ambrella.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.ambrella.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.ambrella.notekeeper.NoteKeeperProviderContract.Courses;
+import com.ambrella.notekeeper.NoteKeeperProviderContract.Notes;
 
 public class NoteActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final int NOTE_ID_NOT_SET = -1;
@@ -48,6 +49,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     private SimpleCursorAdapter mAdapterCourses;
     private boolean mNotesQueryFinished;
     private boolean mCoursesQueryFinished;
+    private Uri mNoteUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,6 +178,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         values.put(NoteInfoEntry.COLUMN_COURSE_ID, course_id);
         values.put(NoteInfoEntry.COLUMN_NOTE_TITLE, title);
         values.put(NoteInfoEntry.COLUMN_NOTE_TEXT, text);
+
         @SuppressWarnings("StaticFieldLeak")
         AsyncTask task = new AsyncTask() {
             @Override
@@ -237,17 +240,25 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     private void createNewNote() {
         final ContentValues values = new ContentValues();
 
-        values.put(NoteInfoEntry.COLUMN_COURSE_ID, "");
-        values.put(NoteInfoEntry.COLUMN_NOTE_TITLE, "");
-        values.put(NoteInfoEntry.COLUMN_NOTE_TEXT, "");
-         AsyncTask task = new AsyncTask() {
+        values.put(Notes.COLUMN_COURSE_ID, "");
+        values.put(Notes.COLUMN_NOTE_TITLE, "");
+        values.put(Notes.COLUMN_NOTE_TEXT, "");
+
+        mNoteUri = null;
+
+        AsyncTask task = new AsyncTask() {
             @Override
-            protected Object doInBackground(Object[] objects) {
-                SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-                mNoteId = (int) db.insert(NoteInfoEntry.TABLE_NAME, null, values);
-                return null;
+            protected Uri doInBackground(Object[] objects) {
+                Uri insertUri = getContentResolver().insert(Notes.CONTENT_URI, values);
+                return insertUri;
             }
-        };
+
+             @Override
+             protected void onPostExecute(Object o) {
+                 super.onPostExecute(o);
+                 mNoteUri = (Uri) o;
+             }
+         };
 
          task.execute();
 
