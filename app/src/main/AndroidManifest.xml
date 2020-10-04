@@ -13,7 +13,7 @@
             android:name=".NoteKeeperProvider"
             android:authorities="com.ambrella.notekeeper.provider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
 
         <activity
             android:name=".SettingsActivity"

@@ -90,7 +90,7 @@ public class NoteKeeperProvider extends ContentProvider {
             columns[i] = (projection[i].equals(BaseColumns._ID) || projection[i].equals(CoursesIdColumns.COLUMN_COURSE_ID)) ? NoteInfoEntry.getQName(projection[i]) : projection[i];
         }
 
-        String tableJoinWith = NoteInfoEntry.TABLE_NAME + " JOIN " + NoteInfoEntry.TABLE_NAME +
+        String tableJoinWith = NoteInfoEntry.TABLE_NAME + " JOIN " + CourseInfoEntry.TABLE_NAME +
                 " ON " + NoteInfoEntry.TABLE_NAME + "." + NoteInfoEntry.COLUMN_COURSE_ID  +
                 " = " + CourseInfoEntry.TABLE_NAME + "." + CourseInfoEntry.COLUMN_COURSE_ID;
         return db.query(tableJoinWith, columns, selection, selectionArgs, null, null, sortOrder);
